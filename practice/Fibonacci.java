@@ -15,14 +15,15 @@ public class Fibonacci{
 				System.out.print(fibo+ " ");
 			}
 
-			fibo=fibonacci(i);
+		//	fibo=fibonacci(i);
 		}
 	}
 
-	private static int fibonacci(int num){
-		
-		if(num == 0 || num == 1){ return num==1 ? 1 : 0;}
+	private static int fibonacci(int num) throws RuntimeException {
 
-		return num > 0 ? fibonacci(num-1) + fibonacci(num-2) : -1;
+		if(num<0){ throw new RuntimeException("Negative numbers don't have a Fibonacci value.");}
+		else if(num>-1 && num<3){ return num==0 ? 0 : 1;}
+
+		return fibonacci(num-1) + fibonacci(num-2);
 	}
 }
