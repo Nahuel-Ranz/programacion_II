@@ -1,6 +1,6 @@
 import java.util.Scanner;
 
-public class Menu{
+public class Menu {
 	
 	private Scanner into;
 	private UndirectedGraph graph;
@@ -41,23 +41,26 @@ public class Menu{
 					else { System.out.println(" The nodes weren't connected!");}
 					break;
 				case 5:
-					System.out.print("\n Node: "); Node searched=graph.searchNode(into.nextLine());
+					System.out.print("\n Node: "); Node searched=graph.search(into.nextLine());
 					if(searched!=null){ System.out.println(searched.toString());}
 					else { System.out.println("The node wasn't found!!!");}
 					break;
 				case 6:
-					System.out.println("\n "+ graph.size()+ " nodes have this graph!");
+					System.out.println("\n Access node: "+ graph.getAccess()+ ".");
 					break;
 				case 7:
+					System.out.println("\n "+ graph.size()+ " nodes have this graph!");
+					break;
+				case 8:
 					System.out.print("\n Node: "); nodeOne=into.nextLine();
 					if(graph.contains(nodeOne)){
-						Node node=graph.searchNode(nodeOne);
+						Node node=graph.search(nodeOne);
 						System.out.println(node.getAdjacentNodes().size()+ " nodes.");
 					}else { System.out.println("Node not found!!!");}
 					break;
-				case 8:
-					
 				case 9:
+					
+				case 10:
 					System.out.print("\n Are you sure? ");
 					do{
 						nodeTwo=into.nextLine().toUpperCase();
@@ -79,6 +82,7 @@ public class Menu{
 		System.out.println((num++)+ ") Remove a node");
 		System.out.println((num++)+ ") Connect the following two nodes");
 		System.out.println((num++)+ ") Search the following node");
+		System.out.println((num++)+ ") Get access node");
 		System.out.println((num++)+ ") How many nodes are there?");
 		System.out.println((num++)+ ") How many neighbors does the following node have?");
 		System.out.println((num++)+ ") All nodes and their adjacents");

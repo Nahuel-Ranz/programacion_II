@@ -20,7 +20,7 @@ public class UndirectedGraph {
 	public boolean add(String value){
 		if(onlyLetters(value) && size==0){
 			access=new Node(value);
-			size++; System.out.println("add method");
+			size++;
 			return true;
 		} return false;
 	}
@@ -32,7 +32,7 @@ public class UndirectedGraph {
 		}
 
 		Node toAdd=new Node(value);
-		Node adjacent=searchNode(adjacentNode);
+		Node adjacent=search(adjacentNode);
 
 		toAdd.getAdjacentNodes().put(adjacent, edge);
 		adjacent.getAdjacentNodes().put(toAdd, edge);
@@ -41,58 +41,67 @@ public class UndirectedGraph {
 		return true;
 	}
 	
-	public Node searchNode(String value) {
+	public Node search(String value) {
 		if(onlyLetters(value) && access!=null){
-			Node toReturn=searchNode(new Node(value), access);
+			Node toReturn=search(new Node(value), access);
 			values.clear();
 			return toReturn;
 		}
 		return null;
 	}
 
-	private Node searchNode(Node nodeToSearch, Node currentNode){
+	private Node search(Node nodeToSearch, Node currentNode){
 		
 		if(currentNode.equals(nodeToSearch)) { return currentNode;}
 		values.add(currentNode.getValue());
 
-		Node aux;
 		if(values.size()<size){
+
+			Node aux;
 			for(Node check: currentNode.getAdjacentNodes().keySet()){
 				
 				if(!values.contains(check.getValue())){
-					aux=searchNode(nodeToSearch, check);
+					aux=search(nodeToSearch, check);
 					if(aux != null) { return nodeToSearch.equals(aux) ? aux : null;}
 				}
 			}
 		} return null;
 	}
 	
-	public boolean contains(String value) { return searchNode(value)!=null;}
+	public boolean contains(String value) { return search(value)!=null;}
 
-	public boolean changeAccessNode(String value) {
-		if(contains(value)) { access=searchNode(value); return true;}
+	public boolean changeAccess(String value) {
+		if(contains(value)) { access=search(value); return true;}
 		return false;
 	}
 	
 	public boolean remove(String value){
-		if(contains(value)){
-			isolateNode(searchNode(value));
-			size--;
-			return true;
-		} return false;
+		if(!contains(value)){ return false;}
+		if(size == 1) { access=null;}
+		else {
+			if(access.getValue().equals(value)){
+				for(Node This : access.getAdjacentNodes().keySet()) { access=This; break;}
+			}
+			isolateNode(search(value));
+		}
+		
+		--size;
+		return true;
 	}
 	
 	private void isolateNode(Node node){
                 for(Node isolate : node.getAdjacentNodes().keySet()){
                         isolate.getAdjacentNodes().remove(node);
                 }
+
+		node.getAdjacentNodes().clear();
         }
 	
 	public boolean connect(String one, String two, int edge){
 		if(contains(one) && contains(two) && edge>0){
 			
-			Node first=searchNode(one);
-			Node second=searchNode(two);
+			Node first=search(one);
+			Node second=search(two);
 			
 			first.getAdjacentNodes().put(second, edge);
 			second.getAdjacentNodes().put(first, edge);
