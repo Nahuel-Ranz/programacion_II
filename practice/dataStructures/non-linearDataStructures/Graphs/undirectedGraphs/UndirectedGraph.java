@@ -56,13 +56,11 @@ public class UndirectedGraph {
 		values.add(currentNode.getValue());
 
 		if(values.size()<size){
-
-			Node aux;
+			
 			for(Node check: currentNode.getAdjacentNodes().keySet()){
 				
 				if(!values.contains(check.getValue())){
-					aux=search(nodeToSearch, check);
-					if(aux != null) { return nodeToSearch.equals(aux) ? aux : null;}
+					return search(nodeToSearch, check);
 				}
 			}
 		} return null;
