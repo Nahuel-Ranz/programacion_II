@@ -59,19 +59,20 @@ public class Menu {
 					}else { System.out.println("Node not found!!!");}
 					break;
 				case 9:
-					
+					System.out.println("\n"+ graph);
+					break;
 				case 10:
 					System.out.print("\n Are you sure? ");
 					do{
 						nodeTwo=into.nextLine().toUpperCase();
-						if(!nodeTwo.equals("S") && !nodeTwo.equals("N")){
+						if(!nodeTwo.equals("Y") && !nodeTwo.equals("N")){
 							System.out.print(" Wrong option. Try again: "); nodeTwo=null;
 						} nodeOne=null;
 					}while(nodeTwo==null);
 					break;
 				default:
 			}
-		}while(!nodeTwo.equals("S") || nodeOne!=null);
+		}while(!nodeTwo.equals("Y") || nodeOne!=null);
 	}
 
 	private int firstMenu(){

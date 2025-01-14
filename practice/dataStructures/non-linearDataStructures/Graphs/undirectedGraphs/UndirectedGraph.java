@@ -106,6 +106,28 @@ public class UndirectedGraph {
 			return true;
 		} return false;
 	}
+	
+	@Override
+	public String toString(){
+		
+		values.add(access.getValue());
+		String toReturn= access==null ? "{ }" : size()==1 ? access.toString() : allNodes(access);
+
+		values.clear();
+		return toReturn;
+	}
+
+	private String allNodes(Node current){
+		
+		String toReturn="";
+		for(Node check : current.getAdjacentNodes().keySet()){
+			
+			if(!values.contains(check.getValue())) {
+				values.add(check.getValue());
+				toReturn+="\n"+ allNodes(check);
+			}
+		} return current.toString()+ toReturn;
+	}
 
 	private boolean onlyLetters(String string){
 		string=string.toUpperCase();
