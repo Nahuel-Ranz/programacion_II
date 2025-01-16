@@ -55,7 +55,7 @@ public class Menu {
 					System.out.print("\n Node: "); nodeOne=into.nextLine();
 					if(graph.contains(nodeOne)){
 						Node node=graph.search(nodeOne);
-						System.out.println(node.getAdjacentNodes().size()+ " nodes.");
+						System.out.println(node.numberOfAdjacentNodes()+ " nodes.");
 					}else { System.out.println("Node not found!!!");}
 					break;
 				case 9:

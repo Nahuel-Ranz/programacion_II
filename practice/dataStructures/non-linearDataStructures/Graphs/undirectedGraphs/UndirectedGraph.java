@@ -43,7 +43,10 @@ public class UndirectedGraph {
 	
 	public Node search(String value) {
 		if(onlyLetters(value) && access!=null){
+			
+			values.add(access.getValue());
 			Node toReturn=search(new Node(value), access);
+
 			values.clear();
 			return toReturn;
 		}
@@ -52,16 +55,14 @@ public class UndirectedGraph {
 
 	private Node search(Node nodeToSearch, Node currentNode){
 		
-		if(currentNode.equals(nodeToSearch)) { return currentNode;}
-		values.add(currentNode.getValue());
+		if(nodeToSearch.equals(currentNode)) { return currentNode;}
 
-		if(values.size()<size){
+		Node aux;
+		for(Node check: currentNode.getAdjacentNodes().keySet()){
 			
-			for(Node check: currentNode.getAdjacentNodes().keySet()){
-				
-				if(!values.contains(check.getValue())){
-					return search(nodeToSearch, check);
-				}
+			if(values.add(check.getValue())){
+				aux=search(nodeToSearch, check);
+				if(nodeToSearch.equals(aux)) { return aux;}
 			}
 		} return null;
 	}
@@ -96,7 +97,7 @@ public class UndirectedGraph {
         }
 	
 	public boolean connect(String one, String two, int edge){
-		if(contains(one) && contains(two) && edge>0){
+		if(contains(one) && contains(two) && edge>0 && !new Node(one).equals(new Node(two))){
 			
 			Node first=search(one);
 			Node second=search(two);
@@ -110,7 +111,7 @@ public class UndirectedGraph {
 	@Override
 	public String toString(){
 		
-		values.add(access.getValue());
+		if(access!=null) { values.add(access.getValue());}
 		String toReturn= access==null ? "{ }" : size()==1 ? access.toString() : allNodes(access);
 
 		values.clear();
@@ -122,10 +123,7 @@ public class UndirectedGraph {
 		String toReturn="";
 		for(Node check : current.getAdjacentNodes().keySet()){
 			
-			if(!values.contains(check.getValue())) {
-				values.add(check.getValue());
-				toReturn+="\n"+ allNodes(check);
-			}
+			if(values.add(check.getValue())) { toReturn+="\n"+ allNodes(check);}
 		} return current.toString()+ toReturn;
 	}
 

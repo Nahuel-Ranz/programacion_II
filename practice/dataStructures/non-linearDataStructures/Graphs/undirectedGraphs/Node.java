@@ -18,7 +18,7 @@ public class Node implements Comparable<Node> {
 	public boolean isAnAdjacentNode(String value){ return adjacentNodes.containsKey(new Node(value));}
 	
 	public int numberOfAdjacentNodes(){ return adjacentNodes.size();}
-
+	
 	@Override
 	public int hashCode(){
 		String hash="";
@@ -45,6 +45,6 @@ public class Node implements Comparable<Node> {
 		
 		for(Map.Entry<Node, Integer> pair : adjacentNodes.entrySet()){
 			toReturn+=pair.getValue()+ "|"+ pair.getKey().getValue()+ "; ";
-		} return toReturn.substring(0, toReturn.length()-2)+ "}";
+		} return adjacentNodes.size()==0 ? value+ ":{ }" : toReturn.substring(0, toReturn.length()-2)+ "}";
 	}
 }
