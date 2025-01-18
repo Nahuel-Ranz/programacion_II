@@ -1,5 +1,7 @@
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Queue;
+import java.util.LinkedList;
 
 public class UndirectedGraph {
 	
@@ -133,5 +135,29 @@ public class UndirectedGraph {
 		for(int i=0; i<string.length(); i++){
 			if(string.charAt(i)<'A' || string.charAt(i)>'Z') { return false;}
 		} return true;
+	}
+
+	private class DijkstraNode {
+		
+		final String value;
+		String before;
+		int weight;
+		static Queue<DijkstraNode> nodeQueue=new LinkedList<DijkstraNode>();
+		static HashSet<DijkstraNode> definitiveValues=new HashSet<DijkstraNode>();
+
+		DijkstraNode(String value, String before, int weight){
+			this.value=value;
+			this.before=before;
+			this.weight=weight;
+		}
+
+		@Override
+		public int hashCode() {
+
+			String toReturn="";
+			for(int i=0; i<value.length(); i++){
+				toReturn+=String.valueOf(Character.hashCode(value.charAt(i)));
+			} return Integer.parseInt(toReturn);
+		}
 	}
 }
