@@ -8,12 +8,15 @@ public class UndirectedGraph {
 	private Node access;
 	private int size;
 	private HashSet<String> values; // this is for internal operations.
-	
-	public UndirectedGraph(){
+	private UndirectedGraph innerGraph; // this is for shortestWay methods.
+
+	public UndirectedGraph() {
 		access=null;
 		size=0;
 		values=new HashSet<String>();
 	}
+
+	private UndirectedGraph(boolean bool) { }
 	
 	public Node getAccess() { return access;}
 	
@@ -137,15 +140,18 @@ public class UndirectedGraph {
 		} return true;
 	}
 
-	private class DijkstraNode {
+	private class INode {
 		
 		final String value;
 		String before;
 		int weight;
-		static Queue<DijkstraNode> nodeQueue=new LinkedList<DijkstraNode>();
-		static HashSet<DijkstraNode> definitiveValues=new HashSet<DijkstraNode>();
+		static Queue<INode> nodeQueue;
+		static LinkedList<INode> finalValues;
+		static INode auxiliary;
 
-		DijkstraNode(String value, String before, int weight){
+		INode(String value) { this.value=value;}
+
+		INode(String value, String before, int weight) {
 			this.value=value;
 			this.before=before;
 			this.weight=weight;
@@ -159,5 +165,38 @@ public class UndirectedGraph {
 				toReturn+=String.valueOf(Character.hashCode(value.charAt(i)));
 			} return Integer.parseInt(toReturn);
 		}
+	}
+	
+	public String shortestPath(String origin, String target){
+		if(contains(origin) && contains(target)) {
+			
+			if(!origin.equals(target)){
+				
+				innerGraph=new UndirectedGraph(true);
+				INode.nodeQueue=new LinkedList<INode>();
+				INode.finalValues=new LinkedList<INode>();
+				
+				INode.finalValues.add(innerGraph.new INode(origin, null, 0));
+				String toReturn=shortestPath(search(origin), null, new Node(target));
+				
+				innerGraph=null;
+				INode.nodeQueue.clear(); INode.nodeQueue=null;
+				INode.finalValues.clear(); INode.finalValues=null;
+				return "Shortest way: {"+ toReturn+ "}";
+			} return "the origin and the target are the same!";
+		} return "some of the nodes weren't found!";
+	}
+
+	private String shortestPath(Node origin, Node before, Node target){
+		return "";
+	}
+
+	private String printShortestPath(String origin, int target) {
+		
+		INode.auxiliary=INode.finalValues.get(target);
+		if(origin.equals(INode.auxiliary.value)) { return origin;}
+
+		target=INode.finalValues.indexOf(innerGraph.new INode(INode.auxiliary.before));
+		return printShortestPath(origin, target)+ ", "+ INode.auxiliary.value;
 	}
 }
