@@ -18,7 +18,7 @@ public class Node implements Comparable<Node> {
 	public boolean isAnAdjacentNode(String value){ return adjacentNodes.containsKey(new Node(value));}
 	
 	public int numberOfAdjacentNodes(){ return adjacentNodes.size();}
-	
+
 	@Override
 	public int hashCode(){
 		String hash="";

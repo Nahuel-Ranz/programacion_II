@@ -1,14 +1,15 @@
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Queue;
 import java.util.LinkedList;
+import java.util.ListIterator;
+import java.util.Map;
 
 public class UndirectedGraph {
 	
 	private Node access;
 	private int size;
 	private HashSet<String> values; // this is for internal operations.
-	private UndirectedGraph innerGraph; // this is for shortestWay methods.
+	private UndirectedGraph innerGraph; // this is for shortestPath methods.
 
 	public UndirectedGraph() {
 		access=null;
@@ -144,17 +145,15 @@ public class UndirectedGraph {
 		
 		final String value;
 		String before;
-		int weight;
-		static Queue<INode> nodeQueue;
+		static HashMap<INode, Integer> nodes;
 		static LinkedList<INode> finalValues;
-		static INode auxiliary;
+		static INode aux;
 
 		INode(String value) { this.value=value;}
 
-		INode(String value, String before, int weight) {
+		INode(String value, String before) {
 			this.value=value;
 			this.before=before;
-			this.weight=weight;
 		}
 
 		@Override
@@ -165,6 +164,12 @@ public class UndirectedGraph {
 				toReturn+=String.valueOf(Character.hashCode(value.charAt(i)));
 			} return Integer.parseInt(toReturn);
 		}
+
+		@Override
+		public boolean equals(Object o) { return o instanceof INode ? ((INode)o).value.equals(value) : false;}
+
+		@Override
+		public String toString() { return "("+ value.toUpperCase()+ ")"+ (before!=null ? before.toLowerCase() : "");}
 	}
 	
 	public String shortestPath(String origin, String target){
@@ -173,30 +178,88 @@ public class UndirectedGraph {
 			if(!origin.equals(target)){
 				
 				innerGraph=new UndirectedGraph(true);
-				INode.nodeQueue=new LinkedList<INode>();
+				INode.nodes=new HashMap<INode, Integer>();
 				INode.finalValues=new LinkedList<INode>();
 				
-				INode.finalValues.add(innerGraph.new INode(origin, null, 0));
-				String toReturn=shortestPath(search(origin), null, new Node(target));
-				
+				INode.nodes.put(innerGraph.new INode(origin, null), 0);
+				shortestPath(target);
+				int index=INode.finalValues.indexOf(innerGraph.new INode(target));
+				String toReturn=printShortestPath(origin, index);
+
 				innerGraph=null;
-				INode.nodeQueue.clear(); INode.nodeQueue=null;
+				INode.aux=null;
+				INode.nodes.clear(); INode.nodes=null;
 				INode.finalValues.clear(); INode.finalValues=null;
+				
 				return "Shortest way: {"+ toReturn+ "}";
 			} return "the origin and the target are the same!";
 		} return "some of the nodes weren't found!";
 	}
+	
+	private void shortestPath(String target){
+		if(!targetFound(target)) {
+			HashMap<INode, Integer> auxiliaries=newFinalValues();
+			
+			for(INode check : auxiliaries.keySet()) {
+				INode.finalValues.add(check);
+				INode.nodes.remove(check);
+			}
 
-	private String shortestPath(Node origin, Node before, Node target){
-		return "";
+			for(Map.Entry<INode, Integer> pair : auxiliaries.entrySet()) {
+				addingINodesFrom(search(pair.getKey().value), pair.getValue());
+			}
+			
+			auxiliaries.clear();
+			shortestPath(target);
+		} else { INode.finalValues.add(getKey(innerGraph.new INode(target)));}
+	}
+
+	private void addingINodesFrom(Node current, int weight) {
+		for(Map.Entry<Node, Integer> pair : current.getAdjacentNodes().entrySet()){
+
+			INode.aux=innerGraph.new INode(pair.getKey().getValue(), current.getValue());
+			if(!INode.finalValues.contains(INode.aux)){
+
+				if(INode.nodes.containsKey(INode.aux)) {
+
+					if(INode.nodes.get(INode.aux) < weight+pair.getValue()) { continue;}
+					if(INode.nodes.get(INode.aux) == weight+pair.getValue()) {
+						INode.aux.before+="|"+ getKey(INode.aux).before;
+					} INode.nodes.remove(INode.aux);
+				} INode.nodes.put(INode.aux, weight+pair.getValue());
+			}
+		}
+	}
+	
+	private HashMap<INode, Integer> newFinalValues(){
+		HashMap<INode, Integer> toReturn=new HashMap<INode, Integer>();
+		int smaller=0;
+
+		for(Integer check : INode.nodes.values()) { smaller=check; break;}
+		for(Map.Entry<INode, Integer> pair : INode.nodes.entrySet()) {
+			if(smaller < pair.getValue()) { continue;}
+			if(smaller > pair.getValue()) { smaller=pair.getValue(); toReturn.clear();}
+			toReturn.put(pair.getKey(), smaller);
+		} return toReturn;
+	}
+
+	private boolean targetFound(String target) {
+		return INode.nodes.containsKey(innerGraph.new INode(target));
+	}
+
+	private INode getKey(INode node) {
+		for(INode check : INode.nodes.keySet()){
+			if(check.equals(node)) { return check;}
+		} return null;
 	}
 
 	private String printShortestPath(String origin, int target) {
 		
-		INode.auxiliary=INode.finalValues.get(target);
-		if(origin.equals(INode.auxiliary.value)) { return origin;}
+		INode.aux=INode.finalValues.get(target);
+		String value=INode.aux.value;
+		if(origin.equals(value)) { return origin;}
 
-		target=INode.finalValues.indexOf(innerGraph.new INode(INode.auxiliary.before));
-		return printShortestPath(origin, target)+ ", "+ INode.auxiliary.value;
+		target=INode.finalValues.indexOf(innerGraph.new INode(INode.aux.before));
+		return printShortestPath(origin, target)+ ", "+ value;
 	}
 }
