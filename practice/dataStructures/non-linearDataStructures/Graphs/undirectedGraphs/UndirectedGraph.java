@@ -143,33 +143,38 @@ public class UndirectedGraph {
 
 	private class INode {
 		
-		final String value;
-		String before;
-		static HashMap<INode, Integer> nodes;
+		final String VALUE;
+		HashSet<String> before;
+		static HashMap<INode, Integer> nodes, auxiliaries;
 		static LinkedList<INode> finalValues;
+		static LinkedList<String> paths;
 		static INode aux;
 
-		INode(String value) { this.value=value;}
+		INode(String VALUE) { this.VALUE=VALUE;}
 
-		INode(String value, String before) {
-			this.value=value;
-			this.before=before;
+		INode(String VALUE, String before) {
+			this.VALUE=VALUE;
+
+			if(!before.equals("@@")) {
+				this.before=new HashSet<String>();
+				this.before.add(before);
+			}
 		}
 
 		@Override
 		public int hashCode() {
 
 			String toReturn="";
-			for(int i=0; i<value.length(); i++){
-				toReturn+=String.valueOf(Character.hashCode(value.charAt(i)));
+			for(int i=0; i<VALUE.length(); i++){
+				toReturn+=String.valueOf(Character.hashCode(VALUE.charAt(i)));
 			} return Integer.parseInt(toReturn);
 		}
 
 		@Override
-		public boolean equals(Object o) { return o instanceof INode ? ((INode)o).value.equals(value) : false;}
+		public boolean equals(Object o) { return o instanceof INode ? ((INode)o).VALUE.equals(VALUE) : false;}
 
-		@Override
-		public String toString() { return "("+ value.toUpperCase()+ ")"+ (before!=null ? before.toLowerCase() : "");}
+	//	@Override
+	//	public String toString() { return "("+ VALUE.toUpperCase()+ ")"+ (before!=null ? before.toLowerCase() : "");}
 	}
 	
 	public String shortestPath(String origin, String target){
@@ -180,38 +185,41 @@ public class UndirectedGraph {
 				innerGraph=new UndirectedGraph(true);
 				INode.nodes=new HashMap<INode, Integer>();
 				INode.finalValues=new LinkedList<INode>();
-				
-				INode.nodes.put(innerGraph.new INode(origin, null), 0);
+				INode.auxiliaries=new HashMap<INode, Integer>();
+				INode.paths=new LinkedList<String>();
+
+				INode.nodes.put(innerGraph.new INode(origin, "@@"), 0);
 				shortestPath(target);
 				int index=INode.finalValues.indexOf(innerGraph.new INode(target));
-				String toReturn=printShortestPath(origin, index);
+				printShortestPath(origin, index, "");
 
 				innerGraph=null;
 				INode.aux=null;
+				INode.auxiliaries=null;
 				INode.nodes.clear(); INode.nodes=null;
 				INode.finalValues.clear(); INode.finalValues=null;
 				
-				return "Shortest way: {"+ toReturn+ "}";
+				return personalizedMessage();
 			} return "the origin and the target are the same!";
 		} return "some of the nodes weren't found!";
 	}
 	
 	private void shortestPath(String target){
-		if(!targetFound(target)) {
-			HashMap<INode, Integer> auxiliaries=newFinalValues();
+		if(!isTargetInFinalValues(target)) {
+			newFinalValues();
 			
-			for(INode check : auxiliaries.keySet()) {
+			for(INode check : INode.auxiliaries.keySet()) {
 				INode.finalValues.add(check);
 				INode.nodes.remove(check);
 			}
 
-			for(Map.Entry<INode, Integer> pair : auxiliaries.entrySet()) {
-				addingINodesFrom(search(pair.getKey().value), pair.getValue());
+			for(Map.Entry<INode, Integer> pair : INode.auxiliaries.entrySet()) {
+				addingINodesFrom(search(pair.getKey().VALUE), pair.getValue());
 			}
 			
-			auxiliaries.clear();
+			INode.auxiliaries.clear();
 			shortestPath(target);
-		} else { INode.finalValues.add(getKey(innerGraph.new INode(target)));}
+		}
 	}
 
 	private void addingINodesFrom(Node current, int weight) {
@@ -224,27 +232,27 @@ public class UndirectedGraph {
 
 					if(INode.nodes.get(INode.aux) < weight+pair.getValue()) { continue;}
 					if(INode.nodes.get(INode.aux) == weight+pair.getValue()) {
-						INode.aux.before+="|"+ getKey(INode.aux).before;
+						INode.aux.before=getKey(INode.aux).before;
+						INode.aux.before.add(current.getValue());
 					} INode.nodes.remove(INode.aux);
 				} INode.nodes.put(INode.aux, weight+pair.getValue());
 			}
 		}
 	}
 	
-	private HashMap<INode, Integer> newFinalValues(){
-		HashMap<INode, Integer> toReturn=new HashMap<INode, Integer>();
+	private void newFinalValues(){
 		int smaller=0;
 
 		for(Integer check : INode.nodes.values()) { smaller=check; break;}
 		for(Map.Entry<INode, Integer> pair : INode.nodes.entrySet()) {
 			if(smaller < pair.getValue()) { continue;}
-			if(smaller > pair.getValue()) { smaller=pair.getValue(); toReturn.clear();}
-			toReturn.put(pair.getKey(), smaller);
-		} return toReturn;
+			if(smaller > pair.getValue()) { smaller=pair.getValue(); INode.auxiliaries.clear();}
+			INode.auxiliaries.put(pair.getKey(), smaller);
+		}
 	}
 
-	private boolean targetFound(String target) {
-		return INode.nodes.containsKey(innerGraph.new INode(target));
+	private boolean isTargetInFinalValues(String target) {
+		return INode.finalValues.contains(innerGraph.new INode(target));
 	}
 
 	private INode getKey(INode node) {
@@ -253,13 +261,23 @@ public class UndirectedGraph {
 		} return null;
 	}
 
-	private String printShortestPath(String origin, int target) {
+	private void printShortestPath(String origin, int target, String value) {
 		
-		INode.aux=INode.finalValues.get(target);
-		String value=INode.aux.value;
-		if(origin.equals(value)) { return origin;}
+		INode node=INode.finalValues.get(target);
+		if(origin.equals(node.VALUE)) { INode.paths.add(origin+ value);}
+		else {
+			for(String beforeNode : node.before) {
+				target=INode.finalValues.indexOf(innerGraph.new INode(beforeNode));
+				printShortestPath(origin, target, ", "+ node.VALUE+ value);
+			}
+		}
+	}
 
-		target=INode.finalValues.indexOf(innerGraph.new INode(INode.aux.before));
-		return printShortestPath(origin, target)+ ", "+ value;
+	private String personalizedMessage() {
+		String toReturn="";
+
+		for(String check : INode.paths) {
+			toReturn+= "\nShortest Path: "+ check;
+		} return toReturn.substring(1);
 	}
 }
