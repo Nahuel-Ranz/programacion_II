@@ -20,6 +20,8 @@ public class Node {
 	public HashSet<Node> getChildren() { return children;}
 	
 	public boolean addChild(String child) { return children.add(new Node(child, ++level));}
+	
+	public boolean addChild(Node child) { return children.add(child);}
 
 	public boolean removeChild(String child) { return children.remove(new Node(child));}
 
